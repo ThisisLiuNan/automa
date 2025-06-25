@@ -43,7 +43,7 @@ const options = {
     sandbox: path.join(__dirname, 'src', 'sandbox', 'index.js'),
     execute: path.join(__dirname, 'src', 'execute', 'index.js'),
     newtab: path.join(__dirname, 'src', 'newtab', 'index.js'),
-    popup: path.join(__dirname, 'src', 'popup', 'index.js'),
+    popup: path.join(__dirname, 'src', 'popup', 'index.ts'),
     params: path.join(__dirname, 'src', 'params', 'index.js'),
     background: path.join(__dirname, 'src', 'background', 'index.js'),
     contentScript: path.join(__dirname, 'src', 'content', 'index.js'),
@@ -122,6 +122,18 @@ const options = {
         },
       },
       {
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'source-map-loader',
+          },
+          {
+            loader: 'babel-loader',
+          },
+        ],
+        exclude: /node_modules/,
+      },
+      {
         test: /\.js$/,
         use: [
           {
@@ -139,7 +151,7 @@ const options = {
     alias,
     extensions: fileExtensions
       .map((extension) => `.${extension}`)
-      .concat(['.js', '.vue', '.css']),
+      .concat(['.js', '.ts', '.vue', '.css']),
   },
   plugins: [
     new MiniCssExtractPlugin(),

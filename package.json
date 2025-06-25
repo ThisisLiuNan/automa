@@ -15,8 +15,8 @@
     "build:prod-firefox": "npm run build:firefox && cross-env BROWSER=firefox npm run build:zip",
     "dev": "node utils/webserver.js",
     "dev:firefox": "cross-env BROWSER=firefox npm run dev",
-    "prettier": "prettier --write '**/*.{js,jsx,css,html}'",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore ."
+    "prettier": "prettier --write '**/*.{js,ts,jsx,css,html}'",
+    "lint": "eslint --ext .js,.ts,.vue --ignore-path .gitignore ."
   },
   "engines": {
     "node": ">=14.18.1"
@@ -143,7 +143,9 @@
     "web-worker": "^1.2.0",
     "webpack": "5.76.0",
     "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^4.11.1",
+    "typescript": "^5.4.2",
+    "@babel/preset-typescript": "^7.21.5"
   },
   "volta": {
     "node": "20.11.1"
