@@ -13,12 +13,12 @@ const ASSET_PATH = process.env.ASSET_PATH || '/';
 
 const alias = {
   '@': path.resolve(__dirname, 'src/'),
-  secrets: path.join(__dirname, 'secrets.blank.js'),
+  secrets: path.join(__dirname, 'secrets.blank.ts'),
   '@business': path.resolve(__dirname, 'business/dev'),
 };
 
 // load the secrets
-const secretsPath = path.join(__dirname, `secrets.${env.NODE_ENV}.js`);
+const secretsPath = path.join(__dirname, `secrets.${env.NODE_ENV}.ts`);
 
 const fileExtensions = [
   'jpg',
@@ -40,35 +40,35 @@ if (fileSystem.existsSync(secretsPath)) {
 const options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
-    sandbox: path.join(__dirname, 'src', 'sandbox', 'index.js'),
-    execute: path.join(__dirname, 'src', 'execute', 'index.js'),
-    newtab: path.join(__dirname, 'src', 'newtab', 'index.js'),
-    popup: path.join(__dirname, 'src', 'popup', 'index.js'),
-    params: path.join(__dirname, 'src', 'params', 'index.js'),
-    background: path.join(__dirname, 'src', 'background', 'index.js'),
-    contentScript: path.join(__dirname, 'src', 'content', 'index.js'),
-    offscreen: path.join(__dirname, 'src', 'offscreen', 'index.js'),
+    sandbox: path.join(__dirname, 'src', 'sandbox', 'index.ts'),
+    execute: path.join(__dirname, 'src', 'execute', 'index.ts'),
+    newtab: path.join(__dirname, 'src', 'newtab', 'index.ts'),
+    popup: path.join(__dirname, 'src', 'popup', 'index.ts'),
+    params: path.join(__dirname, 'src', 'params', 'index.ts'),
+    background: path.join(__dirname, 'src', 'background', 'index.ts'),
+    contentScript: path.join(__dirname, 'src', 'content', 'index.ts'),
+    offscreen: path.join(__dirname, 'src', 'offscreen', 'index.ts'),
     recordWorkflow: path.join(
       __dirname,
       'src',
       'content',
       'services',
       'recordWorkflow',
-      'index.js'
+      'index.ts'
     ),
     webService: path.join(
       __dirname,
       'src',
       'content',
       'services',
-      'webService.js'
+      'webService.ts'
     ),
     elementSelector: path.join(
       __dirname,
       'src',
       'content',
       'elementSelector',
-      'index.js'
+      'index.ts'
     ),
   },
   chromeExtensionBoilerplate: {
@@ -122,7 +122,19 @@ const options = {
         },
       },
       {
-        test: /\.js$/,
+        test: /\.ts$/,
+        use: [
+          {
+            loader: 'source-map-loader',
+          },
+          {
+            loader: 'babel-loader',
+          },
+        ],
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.ts$/,
         use: [
           {
             loader: 'source-map-loader',
@@ -139,7 +151,7 @@ const options = {
     alias,
     extensions: fileExtensions
       .map((extension) => `.${extension}`)
-      .concat(['.js', '.vue', '.css']),
+      .concat(['.ts', '.vue', '.css']),
   },
   plugins: [
     new MiniCssExtractPlugin(),
