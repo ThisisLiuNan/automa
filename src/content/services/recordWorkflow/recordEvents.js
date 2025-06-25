@@ -174,8 +174,13 @@ async function onKeydown(event) {
   });
 }
 function onClick(event) {
-  const { target } = event;
+  let { target } = event;
   if (isAutomaInstance(target)) return;
+
+  const clickableSelector =
+    'a,button,input[type="button"],input[type="submit"],[role="button"],label';
+  const clickableEl = target.closest(clickableSelector);
+  if (clickableEl && !isAutomaInstance(clickableEl)) target = clickableEl;
 
   const isTextField =
     (target.tagName === 'INPUT' && target.getAttribute('type') === 'text') ||
@@ -206,7 +211,7 @@ function onClick(event) {
         },
       });
 
-      window.open(event.target.href, '_blank');
+      window.open(target.href, '_blank');
 
       return;
     }
