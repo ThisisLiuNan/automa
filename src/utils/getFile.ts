@@ -1,4 +1,4 @@
-export function readFileAsBase64(blob) {
+export function readFileAsBase64(blob: Blob): Promise<string | ArrayBuffer | null> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -8,12 +8,23 @@ export function readFileAsBase64(blob) {
   });
 }
 
-async function downloadFile(url, options) {
+interface GetFileOptions {
+  responseType?: 'blob' | 'text' | 'arrayBuffer' | 'json';
+  returnValue?: boolean;
+}
+
+export interface GetFileResult {
+  path: string;
+  objUrl: string | ArrayBuffer | null;
+  type: string;
+}
+
+async function downloadFile(url: string, options: GetFileOptions): Promise<GetFileResult | Blob | string | ArrayBuffer> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(response.statusText);
 
   const type = options.responseType || 'blob';
-  const result = await response[type]();
+  const result = await (response as any)[type]();
 
   if (options.returnValue) {
     return result;
@@ -26,7 +37,11 @@ async function downloadFile(url, options) {
   const base64 = await readFileAsBase64(result);
   return { path: url, objUrl: base64, type: result.type };
 }
-function getLocalFile(path, options) {
+
+function getLocalFile(
+  path: string,
+  options: GetFileOptions
+): Promise<GetFileResult | Blob | string | ArrayBuffer> {
   return new Promise((resolve, reject) => {
     const isFile = /\.(.*)/.test(path);
 
@@ -40,7 +55,11 @@ function getLocalFile(path, options) {
     /* eslint-disable-next-line */
     if ('XMLHttpRequest' in self) {
       const xhr = new XMLHttpRequest();
-      xhr.responseType = options.responseType || 'blob';
+      const respType =
+        options.responseType === 'arrayBuffer'
+          ? 'arraybuffer'
+          : options.responseType || 'blob';
+      xhr.responseType = respType as XMLHttpRequestResponseType;
       xhr.onreadystatechange = () => {
         if (xhr.readyState === XMLHttpRequest.DONE) {
           if (xhr.status === 0 || xhr.status === 200) {
@@ -65,16 +84,21 @@ function getLocalFile(path, options) {
       xhr.send();
     } else {
       fetch(fileUrl)
-        .then((response) => {
+        .then(async (response) => {
           if (!response.ok) throw new Error(response.statusText);
 
-          if (options.returnValue) return response.text();
+          if (options.returnValue) {
+            if (options.responseType === 'text') return response.text();
+            if (options.responseType === 'arrayBuffer') return response.arrayBuffer();
+            if (options.responseType === 'json') return response.json();
+            return response.blob();
+          }
 
           return response.blob();
         })
         .then((blob) => {
           if (options.returnValue) {
-            resolve(blob);
+            resolve(blob as any);
             return;
           }
           if (!blob) return;
@@ -95,7 +119,10 @@ function getLocalFile(path, options) {
   });
 }
 
-export default function (path, options = {}) {
+export default function getFile(
+  path: string,
+  options: GetFileOptions = {}
+): Promise<GetFileResult | Blob | string | ArrayBuffer> {
   if (path.startsWith('http')) return downloadFile(path, options);
 
   return getLocalFile(path, options);

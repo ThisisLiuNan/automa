@@ -1,9 +1,9 @@
 import BrowserAPIService from '@/service/browser-api/BrowserAPIService';
 import browser from 'webextension-polyfill';
 
-export async function getActiveTab() {
+export async function getActiveTab(): Promise<any> {
   try {
-    const tabsQuery = {
+    const tabsQuery: any = {
       active: true,
       url: '*://*/*',
     };
@@ -26,13 +26,13 @@ export async function getActiveTab() {
   }
 }
 
-export function isXPath(str) {
+export function isXPath(str: string): boolean {
   const regex = /^([(/@]|id\()/;
 
   return regex.test(str);
 }
 
-export function visibleInViewport(element) {
+export function visibleInViewport(element: Element): boolean {
   const { top, left, bottom, right, height, width } =
     element.getBoundingClientRect();
 
@@ -46,15 +46,15 @@ export function visibleInViewport(element) {
   );
 }
 
-export function sleep(timeout = 500) {
-  return new Promise((resolve) => {
+export function sleep(timeout = 500): Promise<void> {
+  return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, timeout);
   });
 }
 
-export function findTriggerBlock(drawflow = {}) {
+export function findTriggerBlock(drawflow: any = {}): any {
   if (!drawflow) return null;
 
   if (drawflow.drawflow) {
@@ -70,27 +70,27 @@ export function findTriggerBlock(drawflow = {}) {
   return null;
 }
 
-export function throttle(callback, limit) {
+export function throttle<T extends (...args: any[]) => any>(callback: T, limit: number): (...args: Parameters<T>) => void {
   let waiting = false;
 
-  return (...args) => {
-    if (!waiting) {
-      callback.apply(this, args);
-      waiting = true;
-      setTimeout(() => {
-        waiting = false;
-      }, limit);
-    }
-  };
+  return (...args: Parameters<T>) => {
+      if (!waiting) {
+        callback.apply(this, args);
+        waiting = true;
+        setTimeout(() => {
+          waiting = false;
+        }, limit);
+      }
+    };
 }
 
-export function convertArrObjTo2DArr(arr) {
-  const keyIndex = new Map();
-  const values = [[]];
+export function convertArrObjTo2DArr(arr: Array<Record<string, any>>): any[][] {
+  const keyIndex = new Map<string, number>();
+  const values: any[][] = [[]];
 
   arr.forEach((obj) => {
     const keys = Object.keys(obj);
-    const row = [];
+    const row: any[] = [];
 
     keys.forEach((key) => {
       if (!keyIndex.has(key)) {
@@ -110,13 +110,13 @@ export function convertArrObjTo2DArr(arr) {
   return values;
 }
 
-export function convert2DArrayToArrayObj(values) {
+export function convert2DArrayToArrayObj(values: any[][]): Array<Record<string, any>> {
   let keyIndex = 0;
-  const keys = values.shift();
-  const result = [];
+  const keys = values.shift() as string[];
+  const result: Array<Record<string, any>> = [];
 
   for (let columnIndex = 0; columnIndex < values.length; columnIndex += 1) {
-    const currentColumn = {};
+    const currentColumn: Record<string, any> = {};
 
     for (
       let rowIndex = 0;
@@ -131,7 +131,7 @@ export function convert2DArrayToArrayObj(values) {
         keys.push(key);
       }
 
-      currentColumn[key] = values[columnIndex][rowIndex];
+      (currentColumn as any)[key] = values[columnIndex][rowIndex];
     }
 
     result.push(currentColumn);
@@ -140,7 +140,7 @@ export function convert2DArrayToArrayObj(values) {
   return result;
 }
 
-export function parseJSON(data, def) {
+export function parseJSON<T>(data: string, def: T): T {
   try {
     const result = JSON.parse(data);
 
@@ -150,19 +150,22 @@ export function parseJSON(data, def) {
   }
 }
 
-export function parseFlow(flow) {
-  const obj = typeof flow === 'string' ? parseJSON(flow, {}) : flow;
+export function parseFlow(flow: string | Record<string, any>): Record<string, any> {
+  const obj = typeof flow === 'string' ? parseJSON<Record<string, any>>(flow, {}) : flow;
 
   return obj;
 }
 
-export function replaceMustache(str, replacer) {
+export function replaceMustache(str: string, replacer: (...args: any[]) => string): string {
   /* eslint-disable-next-line */
   return str.replace(/\{\{(.*?)\}\}/g, replacer);
 }
 
-export function openFilePicker(acceptedFileTypes = [], attrs = {}) {
-  return new Promise((resolve) => {
+export function openFilePicker(
+  acceptedFileTypes: string[] = [],
+  attrs: Record<string, any> = {}
+): Promise<File[]> {
+  return new Promise<File[]>((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = Array.isArray(acceptedFileTypes)
@@ -173,11 +176,11 @@ export function openFilePicker(acceptedFileTypes = [], attrs = {}) {
       input[key] = value;
     });
 
-    input.onchange = (event) => {
-      const { files } = event.target;
-      const validFiles = [];
+    input.onchange = (event: Event) => {
+      const { files } = event.target as HTMLInputElement;
+      const validFiles: File[] = [];
 
-      Array.from(files).forEach((file) => {
+      Array.from(files || []).forEach((file: File) => {
         if (!acceptedFileTypes.includes(file.type)) return;
 
         validFiles.push(file);
@@ -190,7 +193,7 @@ export function openFilePicker(acceptedFileTypes = [], attrs = {}) {
   });
 }
 
-export function fileSaver(filename, data) {
+export function fileSaver(filename: string, data: string): void {
   const anchor = document.createElement('a');
   anchor.download = filename;
   anchor.href = data;
@@ -199,7 +202,7 @@ export function fileSaver(filename, data) {
   anchor.remove();
 }
 
-export function countDuration(started, ended) {
+export function countDuration(started: number, ended: number): string {
   const duration = Math.round((ended - started) / 1000);
   const minutes = Math.floor(duration / 60);
   const seconds = Math.floor(duration % 60);
@@ -209,7 +212,7 @@ export function countDuration(started, ended) {
   return `${getText(minutes, 'm')} ${seconds}s`;
 }
 
-export function toCamelCase(str, capitalize = false) {
+export function toCamelCase(str: string, capitalize = false): string {
   const result = str.replace(/(?:^\w|[A-Z]|\b\w)/g, (letter, index) => {
     return index === 0 && !capitalize
       ? letter.toLowerCase()
@@ -219,27 +222,27 @@ export function toCamelCase(str, capitalize = false) {
   return result.replace(/\s+|[-]/g, '');
 }
 
-export function isObject(obj) {
+export function isObject(obj: unknown): obj is Record<string, any> {
   return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
 }
 
-export function objectHasKey(obj, key) {
+export function objectHasKey(obj: Record<string, any>, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
 
-export function isWhitespace(str) {
+export function isWhitespace(str: string): boolean {
   return !/\S/.test(str);
 }
 
-export function debounce(callback, time = 200) {
-  let interval;
+export function debounce<T extends (...args: any[]) => any>(callback: T, time = 200): (...args: Parameters<T>) => Promise<void> {
+  let interval: ReturnType<typeof setTimeout> | undefined;
 
-  return (...args) => {
+  return (...args: Parameters<T>): Promise<void> => {
     clearTimeout(interval);
 
     return new Promise((resolve) => {
       interval = setTimeout(() => {
-        interval = null;
+        interval = undefined;
 
         callback(...args);
         resolve();
@@ -248,11 +251,11 @@ export function debounce(callback, time = 200) {
   };
 }
 
-export async function clearCache(workflow) {
+export async function clearCache(workflow: any): Promise<boolean> {
   try {
     await BrowserAPIService.storage.local.remove(`state:${workflow.id}`);
 
-    const flows = parseJSON(workflow.drawflow, null);
+    const flows = parseJSON<any>(workflow.drawflow, null);
     const blocks = flows && flows.drawflow.Home.data;
 
     if (blocks) {
@@ -270,18 +273,18 @@ export async function clearCache(workflow) {
   }
 }
 
-export function arraySorter({ data, key, order = 'asc' }) {
-  let runCounts = {};
+export function arraySorter<T extends Record<string, any>>({ data, key, order = 'asc' }: { data: T[]; key: string; order?: 'asc' | 'desc' }): T[] {
+  let runCounts: Record<string, number> = {};
   const copyData = data.slice();
 
   if (key === 'mostUsed') {
-    runCounts = parseJSON(localStorage.getItem('runCounts'), {}) || {};
+    runCounts = parseJSON<Record<string, number>>(localStorage.getItem('runCounts') as string, {}) || {};
   }
 
-  return copyData.sort((a, b) => {
+  return copyData.sort((a: T, b: T) => {
     let comparison = 0;
-    let itemA = a[key] || a;
-    let itemB = b[key] || b;
+    let itemA: any = (a as any)[key] || a;
+    let itemB: any = (b as any)[key] || b;
 
     if (key === 'mostUsed') {
       itemA = runCounts[a.id] || 0;
